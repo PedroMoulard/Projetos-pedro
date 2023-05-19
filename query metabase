@@ -1,0 +1,20 @@
+select
+    d.logistics_driver_name,
+    d.id,
+    dp.order_created_at,
+    dp.real_delivered_at,
+    TIMESTAMP_DIFF(dp.real_delivered_at,dp.estimated_delivery_at, second)/60 as diferenca_min_SLATOTAL,
+    TIMESTAMP_DIFF(dp.waiting_pick_up,dp.real_delivered_at, second)/60 as diferenca_min_SLACOLETA,
+    TIMESTAMP_DIFF(dp.in_route_to_arrival_address,dp.real_delivered_at, second)/60 as diferenca_min_SLAROTA,
+    case 
+        WHEN TIMESTAMP_DIFF(dp.real_delivered_at,dp.estimated_delivery_at, MINUTE) <= 0 THEN 'SIM'
+        WHEN TIMESTAMP_DIFF(dp.real_delivered_at,dp.estimated_delivery_at, MINUTE) > 0 THEN 'NÃO'
+        else 'NÃO'
+    END AS Entregue_em_tempo
+from `mecanicity.public_deliveries` d
+left join `operations_mdl.deliveries` dp on d.id = dp.delivery_id
+    where d.status = 'delivered'
+    and date(dp.order_created_at) = date('2023-05-12')
+    and d.estimated_delivery_time = 'express_delivery'
+    [[AND{{d.logistics_driver_name}}]]
+order by 3,4
