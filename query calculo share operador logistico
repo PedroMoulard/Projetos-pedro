@@ -1,0 +1,9 @@
+select   
+    count(case when logistics_provider_name = 'LALAMOVE' then order_item_id end) as LALAMOVE,
+    count(case when logistics_provider_name = 'MOTTU' then order_item_id end) as MOTTU,
+    count(case when logistics_provider_name = 'LALAMOVE' then order_item_id end)/(count(case when logistics_provider_name = 'LALAMOVE' then order_item_id end) + count(case when logistics_provider_name = 'MOTTU' then order_item_id end)) as Porcentaem_lalamove,
+    count(case when logistics_provider_name = 'MOTTU' then order_item_id end)/(count(case when logistics_provider_name = 'LALAMOVE' then order_item_id end) + count(case when logistics_provider_name = 'MOTTU' then order_item_id end)) as Porcentaem_mottu
+from operations_mdl.deliveries
+    where status_delivery = 'delivered'
+    and UPPER(logistics_provider_name) IN ('LALAMOVE','MOTTU')
+    and order_created_at >= '2023-05-01'
